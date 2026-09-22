@@ -47,6 +47,8 @@ class OverlayController(private val ctx: Context) {
     private var expanded = false
     private var lp: WindowManager.LayoutParams? = null
 
+    var shouldShow: () -> Boolean = { true }
+
     var onManualAnalyze: (() -> Unit)? = null
 
     /** Bubble menu → file the open conversation as a knowledge-base contact. */
@@ -95,6 +97,7 @@ class OverlayController(private val ctx: Context) {
     // ---------------------------------------------------------------- window
 
     private fun ensureRoot() {
+        if (!shouldShow()) { hide(); return }
         if (root != null) return
         if (!canOverlay()) { android.util.Log.w("JEVASSIST", "overlay: canDrawOverlays=false"); return }
         val params = WindowManager.LayoutParams(
@@ -346,6 +349,7 @@ class OverlayController(private val ctx: Context) {
      * removed: the window (and everything on it) must survive the round trip.
      */
     fun setHiddenForShot(hidden: Boolean) {
+        if (!hidden && !shouldShow()) { hide(); return }
         root?.visibility = if (hidden) View.INVISIBLE else View.VISIBLE
     }
 
