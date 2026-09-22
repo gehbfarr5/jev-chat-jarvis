@@ -63,7 +63,7 @@ class ScreenCapture(
     private val main = Handler(Looper.getMainLooper())
 
     /** Take one screenshot. [onResult] runs on the main thread, exactly once. */
-    fun capture(onResult: (Result) -> Unit) {
+    fun capture(shouldCapture: () -> Boolean = { true }, onResult: (Result) -> Unit) {
         val now = SystemClock.elapsedRealtime()
         val need = requiredInterval()
         if (now - lastAttemptAt < need) {
@@ -84,7 +84,10 @@ class ScreenCapture(
 
         // Hide the bubble, give the compositor a frame to drop it, then shoot.
         runCatching { hideOverlay() }
-        main.postDelayed({ shoot(finish, done) }, HIDE_SETTLE_MS)
+        main.postDelayed({
+            if (shouldCapture()) shoot(finish, done)
+            else finish(Result.Failed(CODE_CANCELLED, "已切换 App，取消截屏"))
+        }, HIDE_SETTLE_MS)
     }
 
     private fun shoot(finish: (Result) -> Unit, done: AtomicBoolean) {
@@ -174,6 +177,7 @@ class ScreenCapture(
         private const val TAG = "JEVASSIST"
 
         /** Our own throttle, not a platform code. */
+        const val CODE_CANCELLED = -3
         const val CODE_THROTTLED = -1
         /** Our own watchdog: the platform callback never arrived. */
         const val CODE_TIMEOUT = -2
