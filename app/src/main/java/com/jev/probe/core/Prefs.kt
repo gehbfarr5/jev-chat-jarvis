@@ -185,6 +185,13 @@ class Prefs(context: Context, prefsName: String = PREFS_MAIN) {
         get() = sp.getBoolean(K_AUTO, true)
         set(v) = sp.edit().putBoolean(K_AUTO, v).apply()
 
+    /** Empty selection means disabled everywhere, not all apps. */
+    var overlayApps: Set<String>
+        get() = (sp.getStringSet(K_OVERLAY_APPS, setOf("com.tencent.mm")) ?: emptySet()).toSet()
+        set(v) = sp.edit().putStringSet(K_OVERLAY_APPS, v.toSet()).apply()
+
+    fun isAppAllowed(pkg: String?): Boolean = enabled && pkg != null && pkg in overlayApps
+
     // ------------------------------------------------------------- helpers
 
     /** Reply route key, falling back to the judge key. */
@@ -248,6 +255,7 @@ class Prefs(context: Context, prefsName: String = PREFS_MAIN) {
         private const val K_OCR_FALLBACK = "ocr_fallback"
         private const val K_OCR_AUTO = "ocr_auto_analyze"
         private const val K_REL = "relationship"
+        const val K_OVERLAY_APPS = "overlay_apps"
         private const val K_ENABLED = "enabled"
         private const val K_WHITELIST = "whitelist"
         private const val K_OPACITY = "overlay_opacity"
