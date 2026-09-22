@@ -66,6 +66,15 @@ class SettingsActivity : AppCompatActivity() {
 
         root.addView(header("设置"))
 
+        val appCard = card()
+        appCard.addView(cardTitle("悬浮窗使用范围"))
+        appCard.addView(text("只在选中的 App 显示悬浮窗。默认仅微信；全部取消则不显示。", 12f, sub))
+        appCard.addView(cardBtn("选择启用悬浮窗的 App") {
+            startActivity(android.content.Intent(this, OverlayAppsActivity::class.java))
+        })
+        appCard.addView(text("基于 Jev 聊天助手二次开发 · App 选择版（非官方）\nhttps://github.com/jev-chat/jev-chat-jarvis", 11f, sub))
+        root.addView(appCard)
+
         // =================== 接口 ===================
         root.addView(section("接口"))
 
